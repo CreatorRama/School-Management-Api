@@ -1,4 +1,4 @@
-const mysql = require('mysql2/promises');
+const mysql = require('mysql2');
 require('dotenv').config();
 
 class Database {
@@ -14,7 +14,8 @@ class Database {
         password: process.env.DB_PASSWORD || '',
         database: process.env.DB_NAME || 'school_management',
         port: process.env.DB_PORT || 3306
-      });
+      }).promise();
+
       console.log('Connected to MySQL database');
       await this.createTables();
     } catch (error) {
@@ -37,7 +38,7 @@ class Database {
           INDEX idx_coordinates (latitude, longitude)
         )
       `;
-      
+     
       await this.connection.execute(createSchoolsTable);
       console.log('Schools table created/verified');
     } catch (error) {

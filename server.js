@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const database = require('./database/connection');
-const schoolRoutes = require('./routes/schools');
+const schoolRoutes = require('./routes/School');
 require('dotenv').config();
 
 const app = express();
