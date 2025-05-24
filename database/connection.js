@@ -9,13 +9,11 @@ class Database {
   async connect() {
     try {
       this.connection = await mysql.createConnection({
-        host: process.env.DB_HOST || 'localhost',
-        user: process.env.DB_USER || 'root',
-        password: process.env.DB_PASSWORD || '',
-        database: process.env.DB_NAME || 'school_management',
-        port: process.env.DB_PORT || 3306,
-         waitForConnections: true,
-      connectTimeout: 10000, 
+        host: process.env.MYSQLHOST, 
+        user: process.env.MYSQLUSER, 
+        password: process.env.MYSQLPASSWORD,
+        database: process.env.MYSQLDATABASE,
+        port: process.env.MYSQLPORT,
       }).promise();
 
       console.log('Connected to MySQL database');
@@ -40,7 +38,7 @@ class Database {
           INDEX idx_coordinates (latitude, longitude)
         )
       `;
-     
+
       await this.connection.execute(createSchoolsTable);
       console.log('Schools table created/verified');
     } catch (error) {
