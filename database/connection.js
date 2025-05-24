@@ -9,11 +9,11 @@ class Database {
   async connect() {
     try {
       this.connection = await mysql.createConnection({
-        host: process.env.MYSQLHOST, 
-        user: process.env.MYSQLUSER, 
-        password: process.env.MYSQLPASSWORD,
-        database: process.env.MYSQLDATABASE,
-        port: process.env.MYSQLPORT,
+        host:"mysql.railway.internal", 
+        user: "root", 
+        password: "heQvaAVAuOlGebKSstVwlKANYdGSNssC",
+        database: "railway",
+        port: 3306,
       }).promise();
 
       console.log('Connected to MySQL database');
