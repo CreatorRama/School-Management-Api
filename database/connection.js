@@ -13,7 +13,9 @@ class Database {
         user: process.env.DB_USER || 'root',
         password: process.env.DB_PASSWORD || '',
         database: process.env.DB_NAME || 'school_management',
-        port: process.env.DB_PORT || 3306
+        port: process.env.DB_PORT || 3306,
+         waitForConnections: true,
+      connectTimeout: 10000, 
       }).promise();
 
       console.log('Connected to MySQL database');
