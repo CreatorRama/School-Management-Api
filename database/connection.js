@@ -48,7 +48,7 @@ class Database {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         INDEX idx_coordinates (latitude, longitude)
-      )`; // ← Added this closing parenthesis
+      )`; 
 
       await this.pool.execute(createSchoolsTable);
       console.log(' Schools table verified');
