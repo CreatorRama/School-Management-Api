@@ -3,7 +3,7 @@ require('dotenv').config();
 
 class Database {
   constructor() {
-    this.pool = null; 
+    this.pool = null;
   }
 
   async connect() {
@@ -13,22 +13,22 @@ class Database {
       password: process.env.MYSQLPASSWORD,
       database: process.env.MYSQLDATABASE,
       port: parseInt(process.env.MYSQLPORT || '3306'),
-      ssl: { 
-        rejectUnauthorized: true 
+      ssl: {
+        rejectUnauthorized: true
       },
       waitForConnections: true,
-      connectionLimit: 10, 
+      connectionLimit: 10,
       queueLimit: 0
     };
 
     try {
-      this.pool = mysql.createPool(config).promise(); 
+      this.pool = mysql.createPool(config).promise();
       console.log(' MySQL connection pool created');
-      
+
       // Test connection
       const [rows] = await this.pool.query('SELECT 1 + 1 AS result');
       console.log('Connection test result:', rows[0].result);
-      
+
       await this.createTables();
     } catch (error) {
       console.error(' Connection failed:', error.message);
@@ -39,19 +39,19 @@ class Database {
   async createTables() {
     try {
       const createSchoolsTable = `
-        CREATE TABLE IF NOT EXISTS schools (
-          id INT AUTO_INCREMENT PRIMARY KEY,
-          name VARCHAR(255) NOT NULL,
-          address VARCHAR(500) NOT NULL,
-          latitude FLOAT NOT NULL,
-          longitude FLOAT NOT NULL,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-          INDEX idx_coordinates (latitude, longitude)
-      `;
-      
+      CREATE TABLE IF NOT EXISTS schools (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        address VARCHAR(500) NOT NULL,
+        latitude FLOAT NOT NULL,
+        longitude FLOAT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_coordinates (latitude, longitude)
+      )`; // ← Added this closing parenthesis
+
       await this.pool.execute(createSchoolsTable);
-      console.log('✅ Schools table verified');
+      console.log(' Schools table verified');
     } catch (error) {
       console.error(' Table creation failed:', error.message);
       throw error;
@@ -59,7 +59,7 @@ class Database {
   }
 
   getConnection() {
-    return this.pool; 
+    return this.pool;
   }
 
   async close() {
