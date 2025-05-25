@@ -1,39 +1,37 @@
 const mysql = require('mysql2');
 require('dotenv').config();
-const dns = require('dns');
-
-
-dns.setDefaultResultOrder('ipv4first');
 
 class Database {
   constructor() {
-    this.connection = null;
+    this.pool = null; 
   }
 
   async connect() {
     const config = {
-      host: process.env.MYSQLHOST, 
+      host: process.env.MYSQLHOST,
       user: process.env.MYSQLUSER,
       password: process.env.MYSQLPASSWORD,
-      database: process.env.MYSQLDATABASE ,
-      port: parseInt(process.env.MYSQLPORT ), 
-      connectTimeout: 20000,
-     
-      ssl: { rejectUnauthorized: false },
-      
-      socketPath: undefined
+      database: process.env.MYSQLDATABASE,
+      port: parseInt(process.env.MYSQLPORT || '3306'),
+      ssl: { 
+        rejectUnauthorized: true 
+      },
+      waitForConnections: true,
+      connectionLimit: 10, 
+      queueLimit: 0
     };
 
     try {
-      this.connection = await mysql.createConnection(config);
+      this.pool = mysql.createPool(config).promise(); 
+      console.log(' MySQL connection pool created');
       
       // Test connection
-      const [result] = await this.connection.execute('SELECT 1+1 AS test');
-      console.log(' MySQL Connected! Test result:', result[0].test);
+      const [rows] = await this.pool.query('SELECT 1 + 1 AS result');
+      console.log('Connection test result:', rows[0].result);
       
       await this.createTables();
     } catch (error) {
-      console.error(' Connection failed with config:', config);
+      console.error(' Connection failed:', error.message);
       throw error;
     }
   }
@@ -50,25 +48,24 @@ class Database {
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
           INDEX idx_coordinates (latitude, longitude)
-        )
       `;
-
-      await this.connection.execute(createSchoolsTable);
-      console.log('Schools table created/verified');
+      
+      await this.pool.execute(createSchoolsTable);
+      console.log('✅ Schools table verified');
     } catch (error) {
-      console.error('Error creating tables:', error.message);
+      console.error(' Table creation failed:', error.message);
       throw error;
     }
   }
 
   getConnection() {
-    return this.connection;
+    return this.pool; 
   }
 
   async close() {
-    if (this.connection) {
-      await this.connection.end();
-      console.log('Database connection closed');
+    if (this.pool) {
+      await this.pool.end();
+      console.log(' Connection pool closed');
     }
   }
 }
