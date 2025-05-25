@@ -1,5 +1,9 @@
 const mysql = require('mysql2');
 require('dotenv').config();
+const dns = require('dns');
+
+
+dns.setDefaultResultOrder('ipv4first');
 
 class Database {
   constructor() {
@@ -7,19 +11,29 @@ class Database {
   }
 
   async connect() {
-    try {
-      this.connection = await mysql.createConnection({
-        host:"mysql.railway.internal", 
-        user: "root", 
-        password: "heQvaAVAuOlGebKSstVwlKANYdGSNssC",
-        database: "railway",
-        port: 3306,
-      }).promise();
+    const config = {
+      host: process.env.MYSQLHOST, 
+      user: process.env.MYSQLUSER,
+      password: process.env.MYSQLPASSWORD,
+      database: process.env.MYSQLDATABASE || 'railway',
+      port: parseInt(process.env.MYSQLPORT || '3306'), 
+      connectTimeout: 20000,
+     
+      ssl: { rejectUnauthorized: false },
+      
+      socketPath: undefined
+    };
 
-      console.log('Connected to MySQL database');
+    try {
+      this.connection = await mysql.createConnection(config);
+      
+      // Test connection
+      const [result] = await this.connection.execute('SELECT 1+1 AS test');
+      console.log(' MySQL Connected! Test result:', result[0].test);
+      
       await this.createTables();
     } catch (error) {
-      console.error('Database connection failed:', error.message);
+      console.error(' Connection failed with config:', config);
       throw error;
     }
   }
