@@ -1,6 +1,6 @@
 # School Management API
 
-A comprehensive Node.js REST API for managing school data with proximity-based sorting functionality. Built with Express.js, MySQL, and deployed on Railway.
+A comprehensive Node.js REST API for managing school data with proximity-based sorting functionality. Built with Express.js, MySQL, and deployed on Render with PlanetScale database.
 
 ## 🌟 Features
 
@@ -11,7 +11,7 @@ A comprehensive Node.js REST API for managing school data with proximity-based s
 - 📊 **Distance Calculation**: Haversine formula for accurate geographical distances
 - 🚀 **Production Ready**: Deployed and accessible via live endpoints
 - 📝 **API Documentation**: Complete Postman collection with tests
-- 🗄️ **MySQL Integration**: Robust database operations with connection pooling
+- 🗄️ **PlanetScale Integration**: Serverless MySQL database with connection pooling
 
 ## 🏗️ Architecture
 
@@ -34,7 +34,7 @@ A comprehensive Node.js REST API for managing school data with proximity-based s
 ### Prerequisites
 
 - Node.js (v14 or higher)
-- MySQL (v5.7 or higher)
+- PlanetScale account (or MySQL v5.7+ for local development)
 - npm or yarn package manager
 
 ### Local Installation
@@ -51,18 +51,26 @@ A comprehensive Node.js REST API for managing school data with proximity-based s
    ```
 
 3. **Database Setup**
+   For local development with MySQL:
    ```sql
    CREATE DATABASE school_management;
    ```
+   
+   For PlanetScale, create a database through their dashboard.
 
 4. **Environment Configuration**
    ```bash
    # Create .env file with your database credentials
+   # For local MySQL:
    DB_HOST=localhost
    DB_USER=root
    DB_PASSWORD=your_password
    DB_NAME=school_management
    DB_PORT=3306
+   PORT=3000
+   
+   # For PlanetScale:
+   DATABASE_URL=mysql://username:password@host:port/database?ssl={"rejectUnauthorized":true}
    PORT=3000
    ```
 
@@ -79,7 +87,7 @@ A comprehensive Node.js REST API for managing school data with proximity-based s
 
 ### Base URL
 - **Local**: `http://localhost:3000`
-- **Live**: `https://your-railway-url.up.railway.app`
+- **Live**: `https://your-render-url.onrender.com`
 
 ### 1. Health Check
 ```http
@@ -263,7 +271,7 @@ static calculateDistance(lat1, lon1, lat2, lon2) {
 2. Open Postman → Import → Select the JSON file
 3. Update the `baseUrl` variable to match your deployment:
    - Local: `http://localhost:3000`
-   - Production: `https://your-railway-url.up.railway.app`
+   - Production: `https://your-render-url.onrender.com`
 
 ### Test Scenarios Included
 - Health check verification
@@ -276,37 +284,49 @@ static calculateDistance(lat1, lon1, lat2, lon2) {
 
 ## 🚀 Deployment
 
-### Railway Deployment (Recommended)
+### Render + PlanetScale Deployment (Current Setup)
 
 1. **Prerequisites**
    - GitHub repository with your code
-   - Railway account (free tier available)
+   - Render account (free tier available)
+   - PlanetScale account for database
 
-2. **Deploy Steps**
+2. **Database Setup (PlanetScale)**
+   ```bash
+   # Create database on PlanetScale dashboard
+   # Get connection string from PlanetScale
+   # Connection string format:
+   # mysql://username:password@host:port/database?ssl={"rejectUnauthorized":true}
+   ```
+
+3. **Deploy Steps**
    ```bash
    # Push to GitHub
    git push origin main
    
-   # In Railway dashboard:
-   # 1. Create new project from GitHub repo
-   # 2. Add MySQL database service
-   # 3. Configure environment variables
+   # In Render dashboard:
+   # 1. Create new Web Service from GitHub repo
+   # 2. Configure build and start commands
+   # 3. Add environment variables
    # 4. Deploy automatically
    ```
 
-3. **Environment Variables for Production**
+4. **Environment Variables for Production**
    ```
-   DB_HOST=${{MySQL.MYSQL_HOST}}
-   DB_USER=${{MySQL.MYSQL_USER}}
-   DB_PASSWORD=${{MySQL.MYSQL_PASSWORD}}
-   DB_NAME=${{MySQL.MYSQL_DATABASE}}
-   DB_PORT=${{MySQL.MYSQL_PORT}}
-   PORT=3000
+   DATABASE_URL=mysql://username:password@host:port/database?ssl={"rejectUnauthorized":true}
+   PORT=10000
    NODE_ENV=production
    ```
 
+5. **Render Configuration**
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
+   - **Environment**: Node.js
+   - **Auto-Deploy**: Enabled from main branch
+
 ### Alternative Deployment Options
-- **Heroku**: Use provided `Procfile`
+- **Railway**: Use MySQL database service
+- **Heroku**: Use provided `Procfile` with ClearDB
 - **DigitalOcean App Platform**: Direct GitHub integration
 - **AWS EC2**: Manual setup with PM2 process manager
 - **Vercel**: Serverless deployment (with external database)
@@ -319,11 +339,13 @@ static calculateDistance(lat1, lon1, lat2, lon2) {
 - List schools: < 1000ms (varies with dataset size)
 - Get school by ID: < 200ms
 
-### Database Optimization
-- Indexed coordinates for faster proximity queries
-- Connection pooling for concurrent requests
-- Prepared statements to prevent SQL injection
-- Automatic table creation on startup
+### Database Optimization (PlanetScale Benefits)
+- **Serverless Scaling**: Automatic scaling based on demand
+- **Connection Pooling**: Built-in connection management
+- **Global Distribution**: Edge locations for faster access
+- **Branching**: Database branching for schema changes
+- **Insights**: Query performance monitoring
+- **Backup & Recovery**: Automated backups
 
 ## 🔒 Security Features
 
@@ -332,6 +354,7 @@ static calculateDistance(lat1, lon1, lat2, lon2) {
 - **CORS Protection**: Configurable cross-origin resource sharing
 - **Error Handling**: Sanitized error messages in production
 - **Environment Variables**: Sensitive data stored securely
+- **SSL/TLS**: Encrypted connections to PlanetScale database
 
 ## 🐛 Troubleshooting
 
@@ -339,9 +362,18 @@ static calculateDistance(lat1, lon1, lat2, lon2) {
 
 **Database Connection Failed**
 ```bash
-# Check environment variables
-# Verify MySQL service is running
-# Confirm network connectivity
+# Check DATABASE_URL format
+# Verify PlanetScale database is active
+# Confirm SSL settings in connection string
+# Check Render environment variables
+```
+
+**PlanetScale Specific Issues**
+```bash
+# Ensure connection string includes SSL configuration
+# Verify database branch is not sleeping (hobby plan)
+# Check connection limits and current usage
+# Confirm database region for optimal performance
 ```
 
 **Validation Errors**
@@ -391,11 +423,12 @@ For support and questions:
 
 ## 🔗 Links
 
-- **Live API**: `https://your-railway-url.up.railway.app`
+- **Live API**: `https://your-render-url.onrender.com`
 - **GitHub Repository**: `https://github.com/yourusername/school-management-api`
 - **Postman Collection**: Available in repository
-- **Railway Dashboard**: Monitor deployment and usage
+- **Render Dashboard**: Monitor deployment and usage
+- **PlanetScale Dashboard**: Database management and monitoring
 
 ---
 
-**Built with ❤️ using Node.js, Express.js, MySQL, and deployed on Railway**
+**Built with ❤️ using Node.js, Express.js, MySQL, deployed on Render with PlanetScale database**
